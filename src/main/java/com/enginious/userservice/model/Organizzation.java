@@ -3,6 +3,7 @@ package com.enginious.userservice.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,8 +13,8 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "organizzation",
         uniqueConstraints = @UniqueConstraint(
-                name = "unq_organizzation_name",
-                columnNames = "name"
+                name = "unq_organizzation_vatNumber",
+                columnNames = "vatNumber"
         )
 )
 public class Organizzation {
@@ -24,6 +25,11 @@ public class Organizzation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Size(min = 2)
+    @Column(name = "vatNumber", nullable = false)
+    private String vatNumber;
+
+    @Size(min = 2)
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -34,4 +40,10 @@ public class Organizzation {
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "organizzation")
     private Set<Application> applications = new HashSet<>();
+
+    @Builder
+    public Organizzation(@Size(min = 2) String vatNumber, @Size(min = 2) String name) {
+        this.vatNumber = vatNumber;
+        this.name = name;
+    }
 }

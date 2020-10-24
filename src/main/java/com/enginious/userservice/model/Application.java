@@ -1,6 +1,7 @@
 package com.enginious.userservice.model;
 
 import com.enginious.userservice.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -31,6 +32,7 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "organizzation",
             referencedColumnName = "id",
