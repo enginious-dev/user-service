@@ -19,11 +19,14 @@ import java.util.Objects;
 @RequestMapping(path = "/organizzation")
 public class OrganizzationController {
 
-    @Autowired
-    private OrganizzationRepository organizzationRepository;
+    private final OrganizzationRepository organizzationRepository;
+    private final OrganizzationMapper organizzationMapper;
 
     @Autowired
-    private OrganizzationMapper organizzationMapper;
+    public OrganizzationController(OrganizzationRepository organizzationRepository, OrganizzationMapper organizzationMapper) {
+        this.organizzationRepository = organizzationRepository;
+        this.organizzationMapper = organizzationMapper;
+    }
 
     @GetMapping("/{organizzationId}")
     public Organizzation findOrganizzation(@PathVariable Long organizzationId) {
@@ -49,9 +52,6 @@ public class OrganizzationController {
 
     @PostMapping
     public ResponseEntity<?> addOrganizzation(@Valid @RequestBody Organizzation organizzation) {
-        if (Objects.nonNull(organizzation.getId())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         organizzation.setAddedAt(new Date());
         return ResponseEntity.created(
                 ServletUriComponentsBuilder
