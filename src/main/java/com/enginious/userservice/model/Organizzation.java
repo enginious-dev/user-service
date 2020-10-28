@@ -3,6 +3,7 @@ package com.enginious.userservice.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,10 +26,12 @@ public class Organizzation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotNull
     @Size(min = 2)
     @Column(name = "vatNumber", nullable = false)
     private String vatNumber;
 
+    @NotNull
     @Size(min = 2)
     @Column(name = "name", nullable = false)
     private String name;

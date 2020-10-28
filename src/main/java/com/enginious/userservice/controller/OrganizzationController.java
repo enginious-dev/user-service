@@ -4,7 +4,6 @@ import com.enginious.userservice.mappers.OrganizzationMapper;
 import com.enginious.userservice.model.Organizzation;
 import com.enginious.userservice.repository.OrganizzationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +12,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "/organizzation")
@@ -50,7 +48,7 @@ public class OrganizzationController {
         organizzationRepository.deleteById(organizzationId);
     }
 
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<?> addOrganizzation(@Valid @RequestBody Organizzation organizzation) {
         organizzation.setAddedAt(new Date());
         return ResponseEntity.created(
@@ -60,6 +58,7 @@ public class OrganizzationController {
                         .buildAndExpand(
                                 organizzationRepository
                                         .save(organizzation)
+                                        .getId()
                         )
                         .toUri()
         ).build();
