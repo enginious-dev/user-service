@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,9 +37,8 @@ public class Organizzation {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "addedAt", columnDefinition = "TIMESTAMP", nullable = false)
-    private Date addedAt = new Date();
+    private LocalDateTime addedAt = LocalDateTime.now();
 
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "organizzation")

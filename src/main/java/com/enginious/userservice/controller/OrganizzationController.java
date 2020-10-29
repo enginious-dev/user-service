@@ -10,6 +10,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class OrganizzationController {
 
     @PostMapping()
     public ResponseEntity<?> addOrganizzation(@Valid @RequestBody Organizzation organizzation) {
-        organizzation.setAddedAt(new Date());
+        organizzation.setAddedAt(LocalDateTime.now());
         return ResponseEntity.created(
                 ServletUriComponentsBuilder
                         .fromCurrentRequest()
