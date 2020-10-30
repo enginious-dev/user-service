@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.text.MatchesPattern;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,8 +15,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -23,6 +27,7 @@ import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,21 +49,32 @@ public class OrganizzationControllerTest {
         }
     }
 
+    private MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext context;
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
     private OrganizzationRepository organizzationRepository;
 
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
+
     @AfterEach
-    public void cleanTable() {
+    public void cleanup() {
         organizzationRepository.deleteAll();
     }
 
     @Test
+    @WithMockUser
     public void get_empty_table_should_return_empty_list() throws Exception {
 
         mockMvc
@@ -68,6 +84,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void get_one_element_table_should_return_one_element_list() throws Exception {
 
         organizzationRepository.save(buildTestEntity());
@@ -84,6 +101,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void post_valid_entity_should_pass() throws Exception {
         mockMvc
                 .perform(
@@ -96,6 +114,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void post_null_name_should_return_bad_request() throws Exception {
 
         Organizzation organizzation = buildTestEntity();
@@ -110,6 +129,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void post_invalid_name_should_return_bad_request() throws Exception {
 
         Organizzation organizzation = buildTestEntity();
@@ -124,6 +144,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void post_null_vatNumber_should_return_bad_request() throws Exception {
 
         Organizzation organizzation = buildTestEntity();
@@ -138,6 +159,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void post_invalid_vatNumber_should_return_bad_request() throws Exception {
 
         Organizzation organizzation = buildTestEntity();
@@ -152,6 +174,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void post_duplicate_vatNumber_should_return_bad_request() throws Exception {
 
         Organizzation organizzation = buildTestEntity();
@@ -172,6 +195,7 @@ public class OrganizzationControllerTest {
     }
 
     @Test
+    @WithMockUser
     public void put_valid_entity_should_pass() throws Exception {
 
         Organizzation organizzation = organizzationRepository.save(buildTestEntity());
