@@ -23,6 +23,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,6 +100,34 @@ public class OrganizzationControllerTest {
                 .andExpect(jsonPath("$[0].addedAt", notNullValue()))
                 .andExpect(jsonPath("$[0].applications", hasSize(0)));
     }
+
+    @Test
+    @WithMockUser
+    public void get_existing_entity_should_pass() throws Exception {
+
+        Organizzation organizzation = organizzationRepository.save(buildTestEntity());
+
+        mockMvc
+                .perform(
+                        get("/organizzation/" + organizzation.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.name", equalTo(name)))
+                .andExpect(jsonPath("$.vatNumber", equalTo(vatNumber)))
+                .andExpect(jsonPath("$.addedAt", notNullValue()))
+                .andExpect(jsonPath("$.applications", hasSize(0)));
+    }
+
+    @Test
+    @WithMockUser
+    public void get_not_existing_entity_should_return_not_found() throws Exception {
+
+        mockMvc
+                .perform(
+                        get("/organizzation/" + 0))
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     @WithMockUser
@@ -219,6 +248,30 @@ public class OrganizzationControllerTest {
         assertThat(updated.getName()).isEqualTo(organizzation.getName());
         assertThat(updated.getAddedAt()).isEqualTo(addedAt);
         assertThat(updated.getAddedAt()).isNotEqualTo(organizzation.getAddedAt());
+    }
+
+    @Test
+    @WithMockUser
+    public void delete_existing_entity_should_pass() throws Exception {
+
+        Organizzation organizzation = organizzationRepository.save(buildTestEntity());
+
+        mockMvc
+                .perform(
+                        delete("/organizzation/" + organizzation.getId()))
+                .andExpect(status().isOk());
+
+        assertThat(organizzationRepository.findById(organizzation.getId()).isPresent()).isFalse();
+    }
+
+    @Test
+    @WithMockUser
+    public void delete_not_existing_entity_should_return_not_found() throws Exception {
+
+        mockMvc
+                .perform(
+                        delete("/organizzation/" + 0))
+                .andExpect(status().isNotFound());
     }
 
     private Organizzation buildTestEntity() {
