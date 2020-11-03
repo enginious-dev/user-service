@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,10 +54,10 @@ public class Application {
     @Column(name = "role", nullable = false)
     private Role role;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "addedAt", columnDefinition = "TIMESTAMP", nullable = false)
-    private Date addedAt = new Date();
+    private LocalDateTime addedAt = LocalDateTime.now();
 
+    @JsonIgnore
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "application")
     private Set<User> users = new HashSet<>();
