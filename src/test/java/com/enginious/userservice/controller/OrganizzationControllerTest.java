@@ -2,133 +2,97 @@ package com.enginious.userservice.controller;
 
 import com.enginious.userservice.model.Organizzation;
 import com.enginious.userservice.repository.OrganizzationRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.text.MatchesPattern;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Slf4j
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@SpringBootTest
-public class OrganizzationControllerTest {
-
-    private static final String name = "enginious";
-    private static final String vatNumber = "1234567";
-
-    @TestConfiguration
-    static class OrganizzationControllerTestConfig {
-
-        @Bean
-        public ObjectMapper objectMapper() {
-            return (new ObjectMapper()).registerModule(new JavaTimeModule());
-        }
-    }
-
-    private MockMvc mockMvc;
-
-    @Autowired
-    private WebApplicationContext context;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public class OrganizzationControllerTest extends ControllerTest<Organizzation> {
 
     @Autowired
     private OrganizzationRepository organizzationRepository;
 
-    @BeforeEach
-    public void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
+    @Override
+    protected Organizzation buildTestEntity() {
+        return Organizzation
+                .builder()
+                .name("enginious")
+                .vatNumber("123456789")
                 .build();
     }
 
-    @AfterEach
-    public void cleanup() {
+    @Override
+    protected void doCleanup() {
         organizzationRepository.deleteAll();
     }
 
+    @Override
     @Test
     @WithMockUser
-    public void get_empty_table_should_return_empty_list() throws Exception {
-
+    public void get_no_entities_in_table_should_return_empty_list() throws Exception {
         mockMvc
                 .perform(get("/organizzation"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 
+    @Override
     @Test
     @WithMockUser
-    public void get_one_element_table_should_return_one_element_list() throws Exception {
-
-        organizzationRepository.save(buildTestEntity());
+    public void get_one_entity_in_table_should_return_one_element_in_list() throws Exception {
+        Organizzation organizzation = organizzationRepository.save(buildTestEntity());
 
         mockMvc
                 .perform(get("/organizzation"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].id", notNullValue()))
-                .andExpect(jsonPath("$[0].name", equalTo(name)))
-                .andExpect(jsonPath("$[0].vatNumber", equalTo(vatNumber)))
+                .andExpect(jsonPath("$[0].id", equalTo((int) organizzation.getId())))
+                .andExpect(jsonPath("$[0].name", equalTo(organizzation.getName())))
+                .andExpect(jsonPath("$[0].vatNumber", equalTo(organizzation.getVatNumber())))
                 .andExpect(jsonPath("$[0].addedAt", notNullValue()))
                 .andExpect(jsonPath("$[0].applications", hasSize(0)));
     }
 
+    @Override
     @Test
     @WithMockUser
     public void get_existing_entity_should_pass() throws Exception {
-
         Organizzation organizzation = organizzationRepository.save(buildTestEntity());
 
         mockMvc
                 .perform(
                         get("/organizzation/" + organizzation.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", notNullValue()))
-                .andExpect(jsonPath("$.name", equalTo(name)))
-                .andExpect(jsonPath("$.vatNumber", equalTo(vatNumber)))
+                .andExpect(jsonPath("$.id", equalTo((int) organizzation.getId())))
+                .andExpect(jsonPath("$.name", equalTo(organizzation.getName())))
+                .andExpect(jsonPath("$.vatNumber", equalTo(organizzation.getVatNumber())))
                 .andExpect(jsonPath("$.addedAt", notNullValue()))
                 .andExpect(jsonPath("$.applications", hasSize(0)));
     }
 
+    @Override
     @Test
     @WithMockUser
     public void get_not_existing_entity_should_return_not_found() throws Exception {
-
         mockMvc
                 .perform(
                         get("/organizzation/" + 0))
                 .andExpect(status().isNotFound());
     }
 
-
+    @Override
     @Test
     @WithMockUser
     public void post_valid_entity_should_pass() throws Exception {
@@ -142,10 +106,10 @@ public class OrganizzationControllerTest {
                 .andExpect(header().string("location", new MatchesPattern(Pattern.compile("^http://.+/organizzation/\\d+$"))));
     }
 
+    @Override
     @Test
     @WithMockUser
-    public void post_null_name_should_return_bad_request() throws Exception {
-
+    public void post_invalid_entity_should_return_bad_request() throws Exception {
         Organizzation organizzation = buildTestEntity();
         organizzation.setName(null);
 
@@ -157,76 +121,10 @@ public class OrganizzationControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    @WithMockUser
-    public void post_invalid_name_should_return_bad_request() throws Exception {
-
-        Organizzation organizzation = buildTestEntity();
-        organizzation.setName("a");
-
-        mockMvc
-                .perform(
-                        post("/organizzation")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(organizzation)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser
-    public void post_null_vatNumber_should_return_bad_request() throws Exception {
-
-        Organizzation organizzation = buildTestEntity();
-        organizzation.setVatNumber(null);
-
-        mockMvc
-                .perform(
-                        post("/organizzation")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(organizzation)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser
-    public void post_invalid_vatNumber_should_return_bad_request() throws Exception {
-
-        Organizzation organizzation = buildTestEntity();
-        organizzation.setVatNumber("a");
-
-        mockMvc
-                .perform(
-                        post("/organizzation")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(organizzation)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser
-    public void post_duplicate_vatNumber_should_return_bad_request() throws Exception {
-
-        Organizzation organizzation = buildTestEntity();
-
-        mockMvc
-                .perform(
-                        post("/organizzation")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(organizzation)))
-                .andExpect(status().isCreated());
-
-        mockMvc
-                .perform(
-                        post("/organizzation")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(organizzation)))
-                .andExpect(status().isBadRequest());
-    }
-
+    @Override
     @Test
     @WithMockUser
     public void put_valid_entity_should_pass() throws Exception {
-
         Organizzation organizzation = organizzationRepository.save(buildTestEntity());
 
         LocalDateTime addedAt = organizzation.getAddedAt();
@@ -250,10 +148,47 @@ public class OrganizzationControllerTest {
         assertThat(updated.getAddedAt()).isNotEqualTo(organizzation.getAddedAt());
     }
 
+    @Override
+    @Test
+    @WithMockUser
+    public void put_not_existing_entity_should_return_not_found() throws Exception {
+
+        Organizzation organizzation = organizzationRepository.save(buildTestEntity());
+
+        organizzation.setName("upd1");
+        organizzation.setName("upd2");
+        organizzation.setAddedAt(LocalDateTime.now());
+
+        mockMvc
+                .perform(
+                        put("/organizzation/" + 0)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(organizzation)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Override
+    @Test
+    @WithMockUser
+    public void put_invalid_entity_should_return_bad_request() throws Exception {
+        Organizzation organizzation = organizzationRepository.save(buildTestEntity());
+
+        organizzation.setName("u");
+        organizzation.setVatNumber("upd2");
+        organizzation.setAddedAt(LocalDateTime.now());
+
+        mockMvc
+                .perform(
+                        put("/organizzation/" + organizzation.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(organizzation)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Override
     @Test
     @WithMockUser
     public void delete_existing_entity_should_pass() throws Exception {
-
         Organizzation organizzation = organizzationRepository.save(buildTestEntity());
 
         mockMvc
@@ -264,21 +199,13 @@ public class OrganizzationControllerTest {
         assertThat(organizzationRepository.findById(organizzation.getId()).isPresent()).isFalse();
     }
 
+    @Override
     @Test
     @WithMockUser
     public void delete_not_existing_entity_should_return_not_found() throws Exception {
-
         mockMvc
                 .perform(
                         delete("/organizzation/" + 0))
                 .andExpect(status().isNotFound());
-    }
-
-    private Organizzation buildTestEntity() {
-        return Organizzation
-                .builder()
-                .name(name)
-                .vatNumber(vatNumber)
-                .build();
     }
 }
