@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class ApplicationControllerTest {
 
+
     private static final String organizzationName = "enginious";
     private static final String organizzationVatNumber = "1234567";
     private static final String applicationName = "UserService";
