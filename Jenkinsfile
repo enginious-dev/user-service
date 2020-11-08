@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('SCM') {
             steps {
-                git 'https://github.com/enginious-dev/user-service'
+                echo 'WEBHOOK WORKS'
             }
         }
     }
