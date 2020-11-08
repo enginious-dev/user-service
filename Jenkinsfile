@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('SCM') {
             steps {
-                echo 'WEBHOOK WORKS'
+                echo 'WEBHOOK WORKS - 2'
             }
         }
     }
