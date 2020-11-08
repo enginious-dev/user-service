@@ -12,5 +12,10 @@ pipeline {
                 sh 'mvn test'
             }
         }
+        stage('deploy') {
+            steps {
+                sh 'cp ./target/*.jar /opt/user-service'
+            }
+        }
     }
 }
