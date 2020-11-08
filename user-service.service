@@ -1,12 +1,11 @@
 [Unit]
-Description=A Spring Boot application
+Description=user-service Application
 After=syslog.target
 
 [Service]
-#User=gmilazzo
 ExecStart=/opt/user-service/user-service.jar SuccessExitStatus=143
-StandardOutput=/opt/user-service/log/user-service.log
-StandardError=/opt/user-service/log/user-service_error.log
+StandardOutput=file://opt/user-service/log/user-service.log
+StandardError=file://opt/user-service/log/user-service_error.log
 
 [Install]
 WantedBy=multi-user.target
