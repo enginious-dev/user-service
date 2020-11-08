@@ -2,9 +2,14 @@ pipeline {
     agent any
     
     stages {
-        stage('SCM') {
+        stage('Build') {
             steps {
-                echo 'WEBHOOK WORKS - 2'
+                sh 'mvn clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
             }
         }
     }
