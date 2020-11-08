@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Build') {
             steps {
@@ -12,7 +12,7 @@ pipeline {
                 sh 'mvn test'
             }
         }
-        stage('deploy') {
+        stage('Deploy') {
             steps {
                 sh 'sudo systemctl stop user-service.service'
                 sh 'rm -rf /opt/user-service/*.jar'
