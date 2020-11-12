@@ -63,6 +63,20 @@ public class OrganizzationControllerTest extends ControllerTest {
 
     @Test
     @WithMockUser
+    public void post_duplicate_vatNumber_should_return_bad_request() throws Exception {
+        organizzationRepository.save(buildTestOrganizzation());
+
+        mockMvc
+                .perform(
+                        post("/organizzation")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(buildTestOrganizzation())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", new MatchesPattern(Pattern.compile("(?i)^constraint\\sviolation$"))));
+    }
+
+    @Test
+    @WithMockUser
     public void put_null_vatNumber_should_return_bad_request() throws Exception {
         Organizzation organizzation = organizzationRepository.save(buildTestOrganizzation());
         organizzation.setVatNumber(null);

@@ -29,7 +29,7 @@ public class User {
     @ManyToOne(optional = false)
     @JoinColumn(name = "application",
             referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_role_application")
+            foreignKey = @ForeignKey(name = "fk_user_application")
     )
     private Application application;
 
