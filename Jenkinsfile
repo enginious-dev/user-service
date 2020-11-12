@@ -14,10 +14,18 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'sudo systemctl stop user-service.service'
-                sh 'rm -rf /opt/user-service/*.jar'
-                sh 'cp ./target/*.jar /opt/user-service'
-                sh 'sudo systemctl start user-service.service'
+                waitUntil {
+                    sh 'sudo systemctl stop user-service.service'
+                }
+                waitUntil {
+                    sh 'rm -rf /opt/user-service/*.jar'
+                }
+                waitUntil {
+                    sh 'cp ./target/*.jar /opt/user-service'
+                }
+                waitUntil {
+                    sh 'sudo systemctl start user-service.service'
+                }
             }
         }
     }
