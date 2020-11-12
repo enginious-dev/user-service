@@ -15,16 +15,20 @@ pipeline {
         stage('Deploy') {
             steps {
                 waitUntil {
-                    sh 'sudo systemctl stop user-service.service'
+                    def r = sh script: 'sudo systemctl stop user-service.service', returnStdout: true
+                    return (r == 0);
                 }
                 waitUntil {
-                    sh 'rm -rf /opt/user-service/*.jar'
+                    def r = sh script: 'rm -rf /opt/user-service/*.jar', returnStdout: true
+                    return (r == 0);
                 }
                 waitUntil {
-                    sh 'cp ./target/*.jar /opt/user-service'
+                    def r = sh script: 'cp ./target/*.jar /opt/user-service', returnStdout: true
+                    return (r == 0);
                 }
                 waitUntil {
-                    sh 'sudo systemctl start user-service.service'
+                    def r = sh script: 'sudo systemctl start user-service.service', returnStdout: true
+                    return (r == 0);
                 }
             }
         }
