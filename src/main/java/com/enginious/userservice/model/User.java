@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,9 +42,8 @@ public class User {
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "addedAt", columnDefinition = "TIMESTAMP", nullable = false)
-    private Date addedAt = new Date();
+    private LocalDateTime addedAt = LocalDateTime.now();
 
     @EqualsAndHashCode.Exclude
     @ManyToMany(fetch = FetchType.EAGER)
@@ -53,4 +52,13 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role", foreignKey = @ForeignKey(name = "fk_user_role_role"))
     )
     private Set<Role> roles = new HashSet<>();
+
+    @Builder
+    public User(Application application, String username, String password, boolean enabled, Set<Role> roles) {
+        this.application = application;
+        this.username = username;
+        this.password = password;
+        this.enabled = enabled;
+        this.roles = roles;
+    }
 }

@@ -1,5 +1,6 @@
 package com.enginious.userservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.AfterEach;
@@ -48,6 +49,18 @@ public abstract class ControllerTest {
     @AfterEach
     public void cleanup() {
         doCleanup();
+    }
+
+    protected String json(Object o) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(o);
+    }
+
+    protected void notImplemented() {
+        throw new UnsupportedOperationException("not implemented test");
+    }
+
+    protected void refactorNeeded() {
+        throw new UnsupportedOperationException("refactor needed");
     }
 
     public abstract void get_no_entities_in_table_should_return_empty_list() throws Exception;

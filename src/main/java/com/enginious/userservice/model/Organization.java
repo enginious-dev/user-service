@@ -6,20 +6,19 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "organizzation",
+@Table(name = "organization",
         uniqueConstraints = @UniqueConstraint(
-                name = "unq_organizzation_vatNumber",
+                name = "unq_organization_vatNumber",
                 columnNames = "vatNumber"
         )
 )
-public class Organizzation {
+public class Organization {
 
     @Id
     @Column(name = "id")
@@ -41,11 +40,11 @@ public class Organizzation {
     private LocalDateTime addedAt = LocalDateTime.now();
 
     @EqualsAndHashCode.Exclude
-    @OneToMany(mappedBy = "organizzation")
+    @OneToMany(mappedBy = "organization")
     private Set<Application> applications = new HashSet<>();
 
     @Builder
-    public Organizzation(@Size(min = 2) String vatNumber, @Size(min = 2) String name) {
+    public Organization(@Size(min = 2) String vatNumber, @Size(min = 2) String name) {
         this.vatNumber = vatNumber;
         this.name = name;
     }

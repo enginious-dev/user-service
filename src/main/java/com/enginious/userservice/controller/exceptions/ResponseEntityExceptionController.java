@@ -1,6 +1,6 @@
 package com.enginious.userservice.controller.exceptions;
 
-import com.enginious.userservice.controller.exceptions.ExceptionResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,12 +18,14 @@ import javax.persistence.EntityNotFoundException;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @ControllerAdvice
 public class ResponseEntityExceptionController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({EntityNotFoundException.class, EmptyResultDataAccessException.class})
     public final ResponseEntity<ExceptionResponse> handleEntityNotFoundException(Exception ex, WebRequest request) {
+        log.trace(String.format("handling [%s]", ex.getClass()));
         return new ResponseEntity<>(ExceptionResponse
                 .builder()
                 .message("No entity found")
@@ -35,6 +37,7 @@ public class ResponseEntityExceptionController extends ResponseEntityExceptionHa
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public final ResponseEntity<ExceptionResponse> handleDataIntegrityViolationException(Exception ex, WebRequest request) {
+        log.trace(String.format("handling [%s]", ex.getClass()));
         return new ResponseEntity<>(ExceptionResponse
                 .builder()
                 .message("Constraint violation")
@@ -46,6 +49,7 @@ public class ResponseEntityExceptionController extends ResponseEntityExceptionHa
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.trace(String.format("handling [%s]", ex.getClass()));
         return new ResponseEntity<>(ExceptionResponse
                 .builder()
                 .message("Validation error")

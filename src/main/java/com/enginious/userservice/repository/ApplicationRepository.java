@@ -8,9 +8,7 @@ import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
-    Optional<Application> findOneByOrganizzationIdAndId(Long organizzationId, Long applicationId);
+    Optional<Application> findOneByOrganizationIdAndId(Long organizationId, Long applicationId);
 
-    List<Application> findAllByOrganizzationId(Long organizzationId);
-
-    void deleteOneByOrganizzationIdAndId(Long organizzationId, Long applicationId);
+    List<Application> findAllByOrganizationId(Long organizationId);
 }

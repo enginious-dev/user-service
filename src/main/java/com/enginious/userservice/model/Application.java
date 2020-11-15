@@ -6,7 +6,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,8 +15,8 @@ import java.util.Set;
 @Table(name = "application",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "unq_application_organizzation_name",
-                        columnNames = {"organizzation", "name"}
+                        name = "unq_application_organization_name",
+                        columnNames = {"organization", "name"}
                 ),
                 @UniqueConstraint(
                         name = "unq_application_uuid",
@@ -35,11 +34,11 @@ public class Application {
 
     @JsonIgnore
     @ManyToOne(optional = false)
-    @JoinColumn(name = "organizzation",
+    @JoinColumn(name = "organization",
             referencedColumnName = "id",
-            foreignKey = @ForeignKey(name = "fk_application_organizzation")
+            foreignKey = @ForeignKey(name = "fk_application_organization")
     )
-    private Organizzation organizzation;
+    private Organization organization;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -63,8 +62,8 @@ public class Application {
     private Set<User> users = new HashSet<>();
 
     @Builder
-    public Application(Organizzation organizzation, String name, String uuid, String secret, Role role) {
-        this.organizzation = organizzation;
+    public Application(Organization organization, String name, String uuid, String secret, Role role) {
+        this.organization = organization;
         this.name = name;
         this.uuid = uuid;
         this.secret = secret;

@@ -1,74 +1,95 @@
 package com.enginious.userservice.controller;
 
-import com.enginious.userservice.mappers.ApplicationMapper;
-import com.enginious.userservice.mappers.OrganizzationMapper;
 import com.enginious.userservice.model.Application;
-import com.enginious.userservice.model.Organizzation;
-import com.enginious.userservice.repository.ApplicationRepository;
-import com.enginious.userservice.repository.OrganizzationRepository;
-import org.hibernate.secure.internal.JaccPreLoadEventListener;
+import com.enginious.userservice.service.application.ApplicationService;
+import com.enginious.userservice.service.application.dto.CreateApplicationRequest;
+import com.enginious.userservice.service.application.dto.UpdateApplicationRequest;
+import com.enginious.userservice.service.application.exceptions.CreateApplicationException;
+import com.enginious.userservice.service.application.exceptions.DeleteApplicationException;
+import com.enginious.userservice.service.application.exceptions.ReadApplicationException;
+import com.enginious.userservice.service.application.exceptions.UpdateApplicationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping(path = "/organizzation/{organizzationId}/application")
-public class ApplicationController {
+@RequestMapping(path = "/organization/{organizationId}/application")
+public class ApplicationController extends BaseController {
 
-    private final OrganizzationRepository organizzationRepository;
-    private final ApplicationRepository applicationRepository;
-    private final ApplicationMapper applicationMapper;
+    private final ApplicationService applicationService;
 
     @Autowired
-    public ApplicationController(OrganizzationRepository organizzationRepository, ApplicationRepository applicationRepository, ApplicationMapper applicationMapper) {
-        this.organizzationRepository = organizzationRepository;
-        this.applicationRepository = applicationRepository;
-        this.applicationMapper = applicationMapper;
+    public ApplicationController(ApplicationService applicationService) {
+        this.applicationService = applicationService;
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createApplication(@PathVariable Long organizationId, @Valid @RequestBody CreateApplicationRequest request) throws Throwable {
+        try {
+            log.info(executing());
+            return ResponseEntity.created(
+                    ServletUriComponentsBuilder
+                            .fromCurrentRequest()
+                            .path("/{applicationId}")
+                            .buildAndExpand(
+                                    applicationService
+                                            .createApplication(request, organizationId)
+                                            .getId()
+                            )
+                            .toUri()
+            ).build();
+        } catch (CreateApplicationException e) {
+            log.error(error(), e);
+            throw e.getCause();
+        }
     }
 
     @GetMapping("/{applicationId}")
-    public Application findApplication(@PathVariable Long organizzationId, @PathVariable Long applicationId) {
-        return applicationRepository.findOneByOrganizzationIdAndId(organizzationId, applicationId).orElseThrow(EntityNotFoundException::new);
+    public Application readApplication(@PathVariable Long organizationId, @PathVariable Long applicationId) throws Throwable {
+        try {
+            log.info(executing());
+            return applicationService.readApplication(applicationId, organizationId);
+        } catch (ReadApplicationException e) {
+            log.error(error(), e);
+            throw e.getCause();
+        }
     }
 
     @GetMapping
-    public List<Application> findApplication(@PathVariable Long organizzationId) {
-        return applicationRepository.findAllByOrganizzationId(organizzationId);
+    public List<Application> readApplication(@PathVariable Long organizationId) throws Throwable {
+        try {
+            return applicationService.readApplication(organizationId);
+        } catch (ReadApplicationException e) {
+            log.error(error(), e);
+            throw e.getCause();
+        }
     }
 
     @PutMapping("/{applicationId}")
-    public void updateOrganizzation(@PathVariable Long organizzationId, @PathVariable Long applicationId, @Valid @RequestBody Application application) {
-        Application existing = applicationRepository.findOneByOrganizzationIdAndId(organizzationId, applicationId).orElseThrow(EntityNotFoundException::new);
-        applicationMapper.update(application, existing);
-        applicationRepository.save(existing);
+    public void updateApplication(@PathVariable Long organizationId, @PathVariable Long applicationId, @Valid @RequestBody UpdateApplicationRequest request) throws Throwable {
+        try {
+            log.info(executing());
+            applicationService.updateApplication(request, applicationId, organizationId);
+        } catch (UpdateApplicationException e) {
+            log.error(error(), e);
+            throw e.getCause();
+        }
     }
 
     @DeleteMapping("/{applicationId}")
-    public void deleteOrganizzation(@PathVariable Long organizzationId, @PathVariable Long applicationId) {
-        applicationRepository.deleteOneByOrganizzationIdAndId(organizzationId, applicationId);
-    }
-
-    @PostMapping()
-    public ResponseEntity<?> addOrganizzation(@PathVariable Long organizzationId, @Valid @RequestBody Application application) {
-        Organizzation organizzation = organizzationRepository.findById(organizzationId).orElseThrow(EntityNotFoundException::new);
-        application.setAddedAt(LocalDateTime.now());
-        application.setOrganizzation(organizzation);
-        return ResponseEntity.created(
-                ServletUriComponentsBuilder
-                        .fromCurrentRequest()
-                        .path("/{applicationId}")
-                        .buildAndExpand(
-                                applicationRepository
-                                        .save(application)
-                                        .getId()
-                        )
-                        .toUri()
-        ).build();
+    public void deleteApplication(@PathVariable Long organizationId, @PathVariable Long applicationId) throws Throwable {
+        try {
+            log.info(executing());
+            applicationService.deleteApplication(applicationId, organizationId);
+        } catch (DeleteApplicationException e) {
+            log.error(error(), e);
+            throw e.getCause();
+        }
     }
 }
